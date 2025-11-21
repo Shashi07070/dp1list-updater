@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mehta Toss Book V6 (Star Fixed)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen p-2 pb-20">
+
+    <!-- Header -->
+    <div class="max-w-2xl mx-auto mb-4 flex justify-between items-center border-b border-slate-800 pb-4 mt-2">
+        <div>
+            <h1 class="text-xl font-bold text-yellow-400"><i class="fa-solid fa-star mr-2"></i>DP Manager V6</h1>
+            <p class="text-xs text-slate-400">Preserves ⭐️ Emojis & Hyphens</p>
+        </div>
+        <button onclick="resetAll()" class="text-xs bg-slate-900 border border-slate-700 text-red-400 px-3 py-1 rounded hover:bg-red-900/30">
+            Reset
+        </button>
+    </div>
+
+    <div class="max-w-2xl mx-auto space-y-4">
+
+        <!-- STEP 0: Branding Header -->
+        <div class="bg-slate-900 rounded-lg p-3 border border-slate-800">
+            <div class="flex justify-between items-center mb-2 cursor-pointer select-none" onclick="toggleHeader()">
+                <label class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center">
+                    <i class="fa-solid fa-crown text-yellow-500 mr-2"></i> Header Info
+                </label>
+                <i id="headerArrow" class="fa-solid fa-chevron-down text-xs text-slate-600"></i>
+            </div>
+            <textarea id="headerInput" rows="3" class="hidden mono text-[10px] w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-400 focus:text-slate-200 focus:outline-none" placeholder="Paste owner info here..."></textarea>
+        </div>
+
+        <!-- STEP 1: Old List -->
+        <div class="bg-slate-900 rounded-lg p-3 border border-slate-800 shadow-md relative overflow-hidden group">
+            <div class="absolute top-0 left-0 w-1 h-full bg-blue-500 group-hover:w-1.5 transition-all"></div>
+            <label class="text-sm font-bold text-slate-200 mb-2 flex justify-between items-center">
+                <span>Step 1: Paste Old List</span>
+                <span id="balanceStatus" class="text-[10px] text-blue-400 hidden bg-blue-900/30 px-2 py-1 rounded">Loaded <span id="playerCount">0</span> players</span>
+            </label>
+            <textarea id="oldList" rows="8" class="mono text-xs w-full bg-slate-950 border border-slate-700 rounded p-2 focus:border-blue-500 focus:outline-none text-slate-300 transition placeholder-slate-600" placeholder="⭐️7 - Aryan - 6019&#10;4 - NITHIN - &#10;2 - Mohan - 292"></textarea>
+            <div class="flex justify-end mt-2">
+                <button onclick="parseBalances()" class="text-xs bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded shadow-lg font-bold">
+                    Load List
+                </button>
+            </div>
+        </div>
+
+        <!-- STEP 2: Teams & Bets -->
+        <div class="bg-slate-900 rounded-lg p-3 border border-slate-800 shadow-md relative overflow-hidden group">
+            <div class="absolute top-0 left-0 w-1 h-full bg-purple-500 group-hover:w-1.5 transition-all"></div>
+            
+            <!-- Team Names -->
+            <div class="grid grid-cols-3 gap-2 mb-3">
+                <div>
+                    <label class="text-[10px] text-slate-500 uppercase font-bold">Match ID</label>
+                    <input type="text" id="matchId" class="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs text-center focus:outline-none focus:border-purple-500" placeholder="#">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-500 uppercase font-bold">Team A</label>
+                    <input type="text" id="teamAName" oninput="updateButtons()" class="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs text-center focus:outline-none focus:border-blue-500 text-blue-400 font-bold" placeholder="Team A">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-500 uppercase font-bold">Team B</label>
+                    <input type="text" id="teamBName" oninput="updateButtons()" class="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs text-center focus:outline-none focus:border-red-500 text-red-400 font-bold" placeholder="Team B">
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center mb-2">
+                <label class="text-sm font-bold text-slate-200">Step 2: Paste Bets</label>
+                <button onclick="autoFormatBets()" class="text-[10px] bg-purple-600 hover:bg-purple-500 text-white px-2 py-1 rounded shadow-lg">
+                    <i class="fa-solid fa-wand-magic-sparkles mr-1"></i>Fix Format
+                </button>
+            </div>
+            <textarea id="betsInput" rows="6" class="mono text-xs w-full bg-slate-950 border border-slate-700 rounded p-2 focus:border-purple-500 focus:outline-none text-slate-300 placeholder-slate-600" placeholder="Paste bets here...&#10;22 500 A&#10;⭐️7 1000 B"></textarea>
+        </div>
+
+        <!-- STEP 3: Result -->
+        <div class="bg-slate-900 rounded-lg p-3 border border-slate-800 shadow-md relative overflow-hidden group">
+            <div class="absolute top-0 left-0 w-1 h-full bg-emerald-500 group-hover:w-1.5 transition-all"></div>
+            <label class="text-sm font-bold text-slate-200 mb-3 block">Step 3: Result</label>
+            <div class="grid grid-cols-3 gap-2">
+                <button onclick="calculate('A')" id="btnA" class="result-btn bg-slate-800 border border-slate-700 hover:bg-blue-600/80 hover:border-blue-500 text-slate-300 py-3 rounded font-bold text-sm">
+                    <span id="lblTeamA">TEAM A</span>
+                </button>
+                <button onclick="calculate('B')" id="btnB" class="result-btn bg-slate-800 border border-slate-700 hover:bg-red-600/80 hover:border-red-500 text-slate-300 py-3 rounded font-bold text-sm">
+                    <span id="lblTeamB">TEAM B</span>
+                </button>
+                <button onclick="calculate('VOID')" id="btnVoid" class="result-btn bg-slate-800 border border-slate-700 hover:bg-yellow-600/80 hover:border-yellow-500 text-slate-300 py-3 rounded font-bold text-sm">
+                    VOID / RAIN
+                </button>
+            </div>
+        </div>
+
+        <!-- Output -->
+        <div id="outputSection" class="hidden mt-4">
+            <div class="flex justify-between items-center mb-2 bg-slate-800 p-2 rounded-t border border-slate-700 border-b-0">
+                <span class="text-xs font-bold text-emerald-400">UPDATED LIST</span>
+                <button onclick="copyToClipboard()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold px-4 py-1.5 rounded flex items-center">
+                    COPY
+                </button>
+            </div>
+            <div class="bg-black rounded-b border border-slate-700 p-4">
+                <pre id="finalOutput" class="mono text-[11px] text-slate-300 whitespace-pre-wrap leading-snug"></pre>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let players = []; 
+
+        function toggleHeader() {
+            document.getElementById('headerInput').classList.toggle('hidden');
+            document.getElementById('headerArrow').classList.toggle('rotate-180');
+        }
+
+        function updateButtons() {
+            const a = document.getElementById('teamAName').value || "TEAM A";
+            const b = document.getElementById('teamBName').value || "TEAM B";
+            document.getElementById('lblTeamA').innerText = a.toUpperCase();
+            document.getElementById('lblTeamB').innerText = b.toUpperCase();
+        }
+
+        // --- PARSER V6: PRESERVE EMOJI PREFIXES ---
+        function parseBalances() {
+            const raw = document.getElementById('oldList').value;
+            const lines = raw.split('\n');
+            players = [];
+            
+            lines.forEach(line => {
+                let cleanLine = line.trim();
+                if (!cleanLine) return;
+
+                // We split by the FIRST hyphen to separate ID from Name+Bal
+                // "⭐️7 - Aryan - 6019"
+                // part1 (ID String) = "⭐️7 "
+                // part2 (Rest) = " Aryan - 6019"
+
+                const firstHyphenIndex = cleanLine.indexOf('-');
+                
+                if (firstHyphenIndex === -1) {
+                    // If no hyphen, assume line is malformed or just ID? 
+                    // We'll skip safely or try to parse simple ID
+                    return;
+                }
+
+                const idString = cleanLine.substring(0, firstHyphenIndex).trim(); // "⭐️7"
+                const restOfString = cleanLine.substring(firstHyphenIndex + 1).trim(); // "Aryan - 6019"
+
+                // Extract numeric ID for sorting/logic
+                const numericIdMatch = idString.match(/(\d+)/);
+                const numericId = numericIdMatch ? parseInt(numericIdMatch[1]) : 0;
+
+                // Now parse Balance from the END of 'restOfString'
+                // Split 'restOfString' by space or hyphen tokens to find the number at the end
+                const tokens = restOfString.split(/[\s-]+/);
+                let balance = 0;
+                let lastNum = null;
+                
+                // Find last valid number in tokens
+                for (let i = tokens.length - 1; i >= 0; i--) {
+                    if (/^\d+(\.\d+)?$/.test(tokens[i])) {
+                        lastNum = parseFloat(tokens[i]);
+                        break;
+                    }
+                }
+
+                if (lastNum !== null) {
+                    balance = lastNum;
+                } else {
+                    balance = 0; // e.g. "Nithin - "
+                }
+
+                // Extract Name: 
+                // Remove the balance number from the end of 'restOfString'
+                let namePart = restOfString;
+                if (balance !== 0) {
+                    // Remove last occurrence of balance
+                    const balRegex = new RegExp(`[-:\\s]*${balance}\\s*$`);
+                    namePart = namePart.replace(balRegex, "");
+                }
+                
+                // Clean up edge hyphens on name
+                namePart = namePart.replace(/^[\s-:]+/, "").replace(/[\s-:]+$/, "");
+
+                players.push({
+                    id: numericId,          // For sorting (e.g. 7)
+                    displayId: idString,    // For display (e.g. "⭐️7")
+                    name: namePart || "Unknown",
+                    bal: balance
+                });
+            });
+
+            document.getElementById('playerCount').innerText = players.length;
+            document.getElementById('balanceStatus').classList.remove('hidden');
+        }
+
+        function autoFormatBets() {
+            const input = document.getElementById('betsInput');
+            const lines = input.value.split('\n');
+            let formatted = [];
+            const tA = (document.getElementById('teamAName').value || "A").toUpperCase();
+            const tB = (document.getElementById('teamBName').value || "B").toUpperCase();
+
+            lines.forEach(line => {
+                let t = line.trim();
+                if(!t) return;
+                
+                // Clean junk
+                t = t.replace(/\b(bet|on|for|rs|in|play|win|team|match|id|dp|amount|pl|stake)\b/gi, " ");
+                // Keep emoji if user pasted "⭐️7 500 A" -> we remove non-alphanumeric usually
+                // But for bets logic we just need digits.
+                
+                // Extract Numbers
+                const nums = t.match(/(\d+(\.\d+)?)/g);
+                
+                // Detect Team
+                let rawText = t.toUpperCase();
+                let team = "??";
+                if(rawText.includes(tA) || rawText.includes(" A ") || rawText.endsWith(" A") || rawText.includes("HOME") || rawText.includes(" 1 ")) team = 'A';
+                else if(rawText.includes(tB) || rawText.includes(" B ") || rawText.endsWith(" B") || rawText.includes("AWAY") || rawText.includes(" 2 ")) team = 'B';
+
+                if (nums && nums.length >= 2) {
+                    let n1 = parseFloat(nums[0]);
+                    let n2 = parseFloat(nums[1]);
+                    let id, amt;
+                    // Simple logic: ID is usually small (<500) or first.
+                    if (n1 < n2) { id = n1; amt = n2; }
+                    else if (n1 >= 100 && n2 < 100) { amt = n1; id = n2; }
+                    else { id = n1; amt = n2; }
+
+                    formatted.push(`${id} ${amt} ${team}`);
+                } else {
+                    formatted.push(line + " ??");
+                }
+            });
+            input.value = formatted.join('\n');
+        }
+
+        function calculate(winner) {
+            if(players.length === 0) parseBalances();
+            
+            let balanceMap = {};
+            // Use numeric ID as key, but store object
+            players.forEach(p => {
+                balanceMap[p.id] = p; 
+            });
+
+            const rawBets = document.getElementById('betsInput').value.split('\n');
+            const matchId = document.getElementById('matchId').value;
+
+            rawBets.forEach(line => {
+                const parts = line.trim().split(/\s+/);
+                if(parts.length < 3) return;
+
+                const pId = parseInt(parts[0]); // User types "7 500 A" (even if player is ⭐️7)
+                const stake = parseFloat(parts[1]);
+                const selection = parts[2].toUpperCase();
+
+                if(isNaN(pId) || isNaN(stake)) return;
+
+                // Find player by Numeric ID
+                if(!balanceMap[pId]) {
+                    // New player fallback
+                    balanceMap[pId] = { id: pId, displayId: pId.toString(), name: "New", bal: 0 };
+                }
+
+                // Deduct
+                balanceMap[pId].bal -= stake;
+
+                // Win/Refund
+                let returns = 0;
+                if (winner === 'VOID') {
+                    returns = stake;
+                } else if ((winner === 'A' && selection === 'A') || (winner === 'B' && selection === 'B')) {
+                    returns = stake + (stake * 0.95);
+                }
+                
+                balanceMap[pId].bal += returns;
+            });
+
+            // Output
+            let header = document.getElementById('headerInput').value;
+            let out = "";
+            if (header.trim()) out += header + "\n\n";
+            else out += "𝑴𝑬𝑯𝑻𝑨 𝑻𝑶𝑺𝑺 𝑩𝑶𝑶𝑲\nUPDATED DP LIST 🟢🟢🟢\n===================\n";
+
+            if (matchId) out += `MATCH: ${matchId} | WINNER: ${winner}\n\n`;
+
+            const sortedIds = Object.keys(balanceMap).sort((a,b) => parseInt(a) - parseInt(b));
+
+            sortedIds.forEach(id => {
+                const p = balanceMap[id];
+                let displayBal = Math.round(p.bal * 100) / 100;
+                let balStr = displayBal === 0 ? "" : displayBal;
+                
+                // RECONSTRUCT USING displayId (Preserves ⭐️)
+                // Format: "⭐️7 - Name - Balance"
+                out += `${p.displayId} - ${p.name} - ${balStr}\n`;
+            });
+
+            document.getElementById('finalOutput').textContent = out;
+            document.getElementById('outputSection').classList.remove('hidden');
+
+            // Highlight
+            document.querySelectorAll('.result-btn').forEach(b => b.classList.remove('ring-2', 'ring-white'));
+            if(winner === 'A') document.getElementById('btnA').classList.add('ring-2', 'ring-white');
+            if(winner === 'B') document.getElementById('btnB').classList.add('ring-2', 'ring-white');
+            if(winner === 'VOID') document.getElementById('btnVoid').classList.add('ring-2', 'ring-white');
+        }
+
+        function copyToClipboard() {
+            const text = document.getElementById('finalOutput').textContent;
+            navigator.clipboard.writeText(text);
+            const btn = document.querySelector('#outputSection button');
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> COPIED';
+            setTimeout(() => btn.innerHTML = 'COPY', 2000);
+        }
+
+        function resetAll() {
+            if(confirm("Clear all?")) {
+                document.getElementById('oldList').value = "";
+                document.getElementById('betsInput').value = "";
+                document.getElementById('outputSection').classList.add('hidden');
+                players = [];
+            }
+        }
+    </script>
+</body>
+</html>
